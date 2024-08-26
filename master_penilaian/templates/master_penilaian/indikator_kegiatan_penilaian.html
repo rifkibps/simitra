@@ -1,0 +1,411 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Penilaian</a></li>
+                    <li class="breadcrumb-item active">Indikator Kegiatan Penilaian</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger d-none" id="msgs-upload" role="alert">   
+           
+            <div id="messages-content">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Indikator Kegiatan Penilaian</h4>
+                <p class="text-muted font-14">
+                    Indikator Kegiatan Penilaian berisi informasi yang memuat berbagai indikator untuk menilai kinerja mitra berdasarkan masing-masing kegiatan penilaian.
+                </p>
+  
+                <ul class="nav nav-tabs nav-bordered mb-3">
+                      <li class="nav-item">
+                          <a href="#indikator-penilaian-preview" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                              Preview
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="#input-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                              Input
+                          </a>
+                      </li>
+                </ul> <!-- end nav-->
+                <div class="tab-content">
+                      <div class="tab-pane show active" id="indikator-penilaian-preview">
+
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <a href="#offcanvasFilter"  data-bs-toggle="offcanvas" role="button" aria-controls="offcanvasFilter" class="btn btn-danger mb-2"><i class="mdi mdi-filter-menu me-2"></i> Filter Data</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table"><i class="mdi mdi-refresh"></i></button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-light dropdown-toggle mb-2 me-1" data-bs-toggle="dropdown" aria-expanded="false"> Tambah <span class="caret"></span> </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="{% url 'master_survei:index' %}#input-tab">Survei Baru</a>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'master_penilaian:export-indikator-kegiatan' %}" class="btn btn-light mb-2">Export</a>
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="basic-datatable" class="table dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th>Kegiatan Penilaian</th>
+                                        <th>Indikator Penilaian</th>
+                                        <th>Aksi</th> 
+                                    </tr>
+                                </thead>
+                            
+                                <tbody>
+                                </tbody>
+                            </table>                                            
+                        </div>
+                      </div> <!-- end preview-->
+                
+                      <div class="tab-pane" id="input-tab">
+                          <p>Silahkan isikan data Penilaian Peserta.</p>
+                          <form action="{% url 'master_penilaian:indikator-kegiatan' %}" method="POST" id="formKegiatanIndikatorPenilaianPetugas" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" id="id_id">
+                            <div class="row mt-3">
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.kegiatan_penilaian.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.kegiatan_penilaian.id_for_label}}">
+                                        {{form.kegiatan_penilaian}}
+                                        <label for="{{form.kegiatan_penilaian.id_for_label}}">{{ form.kegiatan_penilaian.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.kegiatan_penilaian.id_for_label}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.indikator_penilaian.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.indikator_penilaian.id_for_label}}">
+                                        {{form.indikator_penilaian}}
+                                        <label for="{{form.indikator_penilaian.id_for_label}}">{{ form.indikator_penilaian.label }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row mt-2">
+                                <div class="col-lg">        
+                                     <button type="submit" class="btn btn-primary" id="submitformIndikatorKegiatanPenilaianPetugas">Kirim Data</button>
+                                     <button type="button" class="btn btn-danger" id="ResetformIndikatorKegiatanPenilaianPetugas">Reset</button>
+                                </div>
+                            </div>
+                        
+                        </form>
+                      </div> <!-- end preview code-->
+                </div> <!-- end tab-content-->
+  
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+</div>
+  <!-- end row-->
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilter" aria-labelledby="offcanvasFilterLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasFilterLabel">Filter Indikator Kegiatan</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <h5>Filter by Kegiatan</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="kegiatan-select-filter">
+                        <option selected="" value="">Pilih Kegiatan Penilaian</option>
+                        {% for dt in data_kegiatan %}
+                            <option value="{{dt.id}}">{{dt.nama_kegiatan}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-3">Filter by Indikator Penilaian</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="indikator-select-filter">
+                        <option selected="" value="">Pilih Indikator Penilaian</option>
+                        {% for dt in data_indikator %}
+                        <option value="{{dt.id}}">{{dt.nama_indikator}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-danger mt-3" id="reset-filter">Clear Filter</button>
+    </div>
+</div>
+
+<!-- Success Alert Modal -->
+<div id="success-alert-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content modal-filled bg-success">
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <i class="dripicons-checkmark h1"></i>
+                    <h4 class="mt-2">Well Done!</h4>
+                    <p class="mt-3 message-feedback"></p>
+                    <button type="button" class="btn btn-light my-2" data-bs-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+
+<script>
+
+    var swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-primary'},
+        buttonsStyling: true
+    })
+
+    var table = $("#basic-datatable").DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": "{% url 'master_penilaian:indikator-kegiatan-json' %}",
+            "headers": {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            "data": function (d){
+                return $.extend({}, d, {
+                    "kegiatan_filter": $('#kegiatan-select-filter').val(),
+                    "indikator_filter": $('#indikator-select-filter').val(),
+                })
+            },
+            "type": "POST"
+        },
+        columns :[
+            {"data": 'kegiatan_penilaian__nama_kegiatan'},
+            {"data": 'indikator_penilaian__nama_indikator'},
+            {"data" : 'aksi'},
+        ],
+        lengthMenu: [5, 25, 50, 100,'All'],
+        columnDefs: [ {
+            'targets': [2], /* column index */
+            'orderable': false, /* true or false */
+            'className': "text-center"
+        }],
+        keys: !0,
+        language: {
+            paginate: {
+            previous: "<i class='mdi mdi-chevron-left'>",
+            next: "<i class='mdi mdi-chevron-right'>",
+            },
+        },
+        drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        },
+    });
+
+    $('#kegiatan-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#indikator-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    function resetForm(){
+        $('#formKegiatanIndikatorPenilaianPetugas')[0].reset();
+        $('.was-validated').removeClass('was-validated')
+        $('#submitformIndikatorKegiatanPenilaianPetugas').html('Kirim Data')
+        $('#formKegiatanIndikatorPenilaianPetugas').attr('action', "{% url 'master_penilaian:index' %}")
+    }
+    $('#ResetformIndikatorKegiatanPenilaianPetugas').on('click', function(e){
+        resetForm()
+    })
+
+    function editIndikatorKegiatan(e){
+
+        $('#formKegiatanIndikatorPenilaianPetugas').attr('action', "{% url 'master_penilaian:update-indikator-kegiatan' %}")
+        $('#submitformIndikatorKegiatanPenilaianPetugas').html('Update Data')
+    
+        $.ajax({
+            url: '{% url 'master_penilaian:detail-indikator-kegiatan' %}',
+            type: "POST",
+            dataType: "json",
+            data : {
+                'id' : e
+            },
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+
+                if (data.status == 'failed'){
+                    Swal.fire(
+                        'Terjadi Kesalahan!',
+                         data.message,
+                        'info'
+                    )
+                }else{                  
+                    for (const [key, value] of Object.entries(data.instance)) {
+                        $('#id_'+key).val(value)
+                    }
+                    $('.nav-tabs a[href="#input-tab"]').tab('show');
+                    table.ajax.reload();
+                }
+
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    function deleteIndikatorKegiatan(e){
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin menghapus indikator penilaian mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.isConfirmed) {
+                
+                $.ajax({
+                    url: '{% url 'master_penilaian:delete-indikator-kegiatan' %}',
+                    type: "POST",
+                    dataType: "json",
+                    data : {
+                        'id' : e
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+                                
+                        if (data.status == 'success'){
+                            Swal.fire(
+                                'Deleted!',
+                                data.message,
+                                'success'
+                                )
+                            table.ajax.reload();
+                        }else{
+                            Swal.fire(
+                                'Terjadi Kesalahan!',
+                                 data.message,
+                                'info'
+                            )
+                        }
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+
+            }
+        }) 
+
+
+    }
+
+    $('#formKegiatanIndikatorPenilaianPetugas').on('submit', function(e){
+
+        e.preventDefault()
+        
+        var serializedData = $(this).serialize();
+        $('.invalid-feedback').html('')
+        $('.is_invalid').removeClass('is_invalid')
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: serializedData,
+            success: function (response) {
+                console.log(response)
+                if (response.status == 'failed'){
+                    Swal.fire(
+                        'Terjadi Kesalahan!',
+                        response.message,
+                        'info'
+                    )
+                }else{
+                    $('#messages-content').html(response.message)
+                    $('#msgs-upload').removeClass('alert-danger')
+                    $('#msgs-upload').addClass('alert-success')
+                    $('#msgs-upload').removeClass('d-none')
+
+                    $(this)[0].reset();
+                    table.ajax.reload();
+                }
+            },
+            error: function (response) {
+                var errors = response["responseJSON"]["error"]
+                for (const [key, value] of Object.entries(errors)) {
+                    var msgs = '<ul>'
+                    value.forEach(function (item, index) {
+                    
+                        msgs += '<li>'+item+'</li>'
+                        });
+                    
+                    msgs += '</ul>'
+                    $('#id_'+ key).addClass('is-invalid');
+                    $('#msg-id_'+key).html(msgs)
+                }    
+            }
+        })
+    })
+
+    $('#reset-filter').on('click', function (){
+        $('#kegiatan-select-filter').prop('selectedIndex',0);
+        $('#indikator-select-filter').prop('selectedIndex',0);
+        table.draw();
+    })
+    
+    $('#redraw-table').on('click', function (){
+        table.draw();
+    })
+
+</script>
+
+{% endblock tables-script-extend %}

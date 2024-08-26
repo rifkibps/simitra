@@ -1,0 +1,306 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Penilaian</a></li>
+                    <li class="breadcrumb-item active">Indikator Penilaian</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger d-none" id="msgs-upload" role="alert">   
+           
+            <div id="messages-content">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Indikator Penilaian</h4>
+                <p class="text-muted font-14">
+                    Indikator penilaian berisi informasi yang digunakan sebagai dasar penilaian mitra BPS Kabupaten Muna
+                </p>
+  
+                <ul class="nav nav-tabs nav-bordered mb-3">
+                      <li class="nav-item">
+                          <a href="#indikator-penilaian-preview" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                              Preview
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="#input-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                              Input
+                          </a>
+                      </li>
+                </ul> <!-- end nav-->
+                <div class="tab-content">
+                      <div class="tab-pane show active" id="indikator-penilaian-preview">
+                            <div class="table-responsive">
+                                <table id="basic-datatable" class="table table-centered table-striped w-100 dt-responsive nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>Indikator Penilaian</th>
+                                            <th>Deskripsi Penilaian</th>
+                                            <th>Aksi</th> 
+                                        </tr>
+                                    </thead>
+                                
+                                    <tbody>
+                                    </tbody>
+                                </table>                                            
+                            </div>
+                      </div> <!-- end preview-->
+                
+                      <div class="tab-pane" id="input-tab">
+                          <p>Silahkan isikan data Penilaian Peserta.</p>
+                          <form action="{% url 'master_penilaian:indikator-penilaian' %}" method="POST" id="formKegiatanPenilaianPetugas" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" id="id_id">
+                            <div class="row mt-3">
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.nama_indikator.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.nama_indikator.id_for_label}}">
+                                        {{form.nama_indikator}}
+                                        <label for="{{form.nama_indikator.id_for_label}}">{{ form.nama_indikator.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.nama_indikator.id_for_label}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.deskripsi_penilaian.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.deskripsi_penilaian.id_for_label}}">
+                                        {{form.deskripsi_penilaian}}
+                                        <label for="{{form.deskripsi_penilaian.id_for_label}}">{{ form.deskripsi_penilaian.label }}</label>
+                                   
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row mt-2">
+                                <div class="col-lg">        
+                                     <button type="submit" class="btn btn-primary" id="submitformIndikatorPenilaianPetugas">Kirim Data</button>
+                                     <button type="button" class="btn btn-danger" id="ResetformIndikatorPenilaianPetugas">Reset</button>
+                                </div>
+                            </div>
+                        
+                        </form>
+                      </div> <!-- end preview code-->
+                </div> <!-- end tab-content-->
+  
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+</div>
+  <!-- end row-->
+
+
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+
+<script>
+    var swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-primary'},
+        buttonsStyling: true
+    })
+
+    var table = $("#basic-datatable").DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": "{% url 'master_penilaian:indikator-penilaian-json' %}",
+            "headers": {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            "type": "POST"
+        },
+        columns :[
+            {"data": 'nama_indikator'},
+            {"data": 'deskripsi_penilaian'},
+            {"data" : 'aksi'},
+        ],
+        lengthMenu: [5, 25, 50, 100,'All'],
+        columnDefs: [ {
+            'targets': [2], /* column index */
+            'orderable': false, /* true or false */
+            'className': "text-center"
+        }],
+        keys: !0,
+        language: {
+            paginate: {
+            previous: "<i class='mdi mdi-chevron-left'>",
+            next: "<i class='mdi mdi-chevron-right'>",
+            },
+        },
+        drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        },
+    });
+
+    function resetForm(){
+        $('#formKegiatanPenilaianPetugas')[0].reset();
+        $('.was-validated').removeClass('was-validated')
+        $('#submitformIndikatorPenilaianPetugas').html('Kirim Data')
+        $('#formKegiatanPenilaianPetugas').attr('action', "{% url 'master_penilaian:index' %}")
+    }
+
+    function editIndikator(e){
+        $('#formKegiatanPenilaianPetugas').attr('action', "{% url 'master_penilaian:update-indikator' %}")
+        $('#submitformIndikatorPenilaianPetugas').html('Update Data')
+    
+        $.ajax({
+            url: '{% url 'master_penilaian:detail-indikator' %}',
+            type: "POST",
+            dataType: "json",
+            data : {
+                'id' : e
+            },
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+
+                if (data.status == 'success'){
+
+                    for (const [key, value] of Object.entries(data.instance)) {
+                        $('#id_'+key).val(value)
+                    }
+                    $('.nav-tabs a[href="#input-tab"]').tab('show');
+                    table.ajax.reload();
+
+                }else{
+                    Swal.fire(
+                        'Terjadi Kesalahan!',
+                         data.message,
+                        'info'
+                    )
+                }
+                
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    function deleteIndikator(e){
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin menghapus indikator penilaian mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.isConfirmed) {
+                
+                $.ajax({
+                    url: '{% url 'master_penilaian:delete-indikator' %}',
+                    type: "POST",
+                    dataType: "json",
+                    data : {
+                        'id' : e
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+        
+                        if (data.status == 'success'){
+                            Swal.fire(
+                                'Deleted!',
+                                data.message,
+                                'success'
+                                )
+                            table.ajax.reload();
+                        }else{
+                            Swal.fire(
+                                'Terjadi Kesalahan!',
+                                 data.message,
+                                'info'
+                            )
+                        }
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+        }) 
+        
+    }
+    
+    $('#ResetformIndikatorPenilaianPetugas').on('click', function(e){
+        resetForm()
+    })
+
+    $('#formKegiatanPenilaianPetugas').on('submit', function(e){
+
+        e.preventDefault()
+        
+        var serializedData = $(this).serialize();
+        $('.invalid-feedback').html('')
+        $('.is_invalid').removeClass('is_invalid')
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: serializedData,
+            success: function (response) {
+
+                $('#messages-content').html(response["message"])
+                $('#msgs-upload').removeClass('alert-danger')
+                $('#msgs-upload').addClass('alert-success')
+                $('#msgs-upload').removeClass('d-none')
+                $(this)[0].reset();
+                table.ajax.reload();
+
+                $('.nav-tabs a[href="#indikator-penilaian-preview"]').tab('show');
+            },
+            error: function (response) {
+                var errors = response["responseJSON"]["error"]
+                for (const [key, value] of Object.entries(errors)) {
+                    var msgs = '<ul>'
+                    value.forEach(function (item, index) {
+                    
+                        msgs += '<li>'+item+'</li>'
+                        });
+                    
+                    msgs += '</ul>'
+                    $('#id_'+ key).addClass('is-invalid');
+                    $('#msg-id_'+key).html(msgs)
+                }    
+            }
+        })
+    })
+</script>
+
+{% endblock tables-script-extend %}

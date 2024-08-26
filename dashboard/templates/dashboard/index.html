@@ -1,0 +1,270 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-lg-6 col-xl-3">
+        <div class="card tilebox-one">
+            <div class="card-body">
+                <i class='uil uil-users-alt float-end'></i> 
+                <h6 class="text-uppercase mt-0">Active Mitra</h6>
+                <h2 class="my-2" >{{mitra}}</h2>
+                <p class="mb-0 text-muted">
+                    <span class="text-success me-2"> {{mitra_block}}</span>
+                    <span class="text-nowrap">Mitra Blacklist</span>  
+                </p>
+            </div> <!-- end card-body-->
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-xl-3">
+        <div class="card tilebox-one">
+            <div class="card-body">
+                <i class='mdi mdi-clipboard-account-outline float-end'></i>
+                <h6 class="text-uppercase mt-0">Active Survey</h6>
+                <h2 class="my-2" >{{survey}}</h2>
+                <p class="mb-0 text-muted">
+                    <span class="text-success me-2"> {{survey_finish}}</span>
+                    <span class="text-nowrap">Survei Selesai</span>  
+                </p>
+            </div> <!-- end card-body-->
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-xl-3">
+        <div class="card tilebox-one">
+            <div class="card-body">
+                <i class="mdi mdi-clipboard-edit-outline float-end"></i>
+                <h6 class="text-uppercase mt-0">Kegiatan Penilaian</h6>
+                <h2 class="my-2" >{{penilaian}}</h2>
+                <p class="mb-0 text-muted">
+                    <span class="text-success me-2"> {{penilaian_active}}</span>
+                    <span class="text-nowrap">Kegiatan Aktif</span>  
+                </p>
+            </div> <!-- end card-body-->
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-xl-3">
+        <div class="card tilebox-one">
+            <div class="card-body">
+                <i class="mdi mdi-clipboard-check-multiple float-end"></i>
+                <h6 class="text-uppercase mt-0">Penilaian Mitra</h6>
+                <h2 class="my-2" >{{nilai_mitra}}</h2>
+                <p class="mb-0 text-muted">
+                    <span class="text-success me-2"> {{mitra_dinilai}}</span>
+                    <span class="text-nowrap">Mitra Dinilai</span>  
+                </p>
+            </div> <!-- end card-body-->
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    
+    {% for dt in summarize %}
+        <div class="col-lg-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <h5 class="text-muted fw-normal mt-0 text-truncate" title="Rata-rata {{dt.nama}}">{{dt.nama}}</h5>
+                            <h3 class="my-2 py-1">{{dt.rerata}}</h3>
+                            <p class="mb-0 text-muted font-14">
+                                <span class="text-success me-1" title="Nilai terendah {{dt.nama}}"><span class="mdi mdi-arrow-down-bold"></span> {{dt.min}}</span>
+                            </p>
+                            <p class="mb-0 text-muted font-14">
+                                <span class="text-info me-2" title="Nilai tertinggi {{dt.nama}}"><span class="mdi mdi-arrow-up-bold"></span> {{dt.max}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-end">
+                                <div id="campaign-sent-chart-{{ forloop.counter }}" data-colors="{{dt.color}}"></div>
+                            </div>
+                        </div>
+                    </div> <!-- end row-->
+                </div> <!-- end card-body -->
+            </div> <!-- end card -->
+        </div> <!-- end col -->
+    {% endfor %}
+
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                
+                <div class="row mb-2">
+                    <div class="col-sm-4">
+                       <h5 class="text-uppercase mt-0">Penilaian Mitra Menurut Kegiatan </h5>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="text-sm-end d-flex justify-content-end">
+                            <select class="form-select mb-1" id="kegiatan_filter" name="kegiatan_filter" style="width:200px; height:40px">
+                                <option value="">Kegiatan Penilaian</option>
+                                {% for dt in data_penilaian  %}
+                                    <option value="{{dt.id}}">{{dt.nama_kegiatan}}</option>
+                                {% endfor %}
+                             </select>&ensp;
+                            <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table"><i class="mdi mdi-refresh"></i></button>
+                            <button type="button" class="btn btn-light mb-2" onclick="ExportToExcel('xlsx')">Export</button>
+                        </div>
+                    </div><!-- end col-->
+                </div>
+                
+                <div class="table-responsive-sm">
+                    <table class="table table-centered table-striped dt-responsive nowrap w-100" id="ranking-mitra">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Jabatan</th>
+                                <th>Kegiatan Penilaian</th>
+                                <th>Mean</th>
+                                <th>Rank</th>
+                                <th>Global Mean</th>
+                                <th>Global Rank</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+
+
+{% endblock table-content %}
+
+
+{% block tables-script-extend %}
+
+<script src="{% static 'app-design/assets/js/vendor/responsive.bootstrap5.min.js' %}"></script>
+
+<!-- Apex js -->
+<script src="{% static 'app-design/assets/js/vendor/apexcharts.min.js' %}"></script>
+
+<!-- Todo js -->
+<script src="{% static 'app-design/assets/js/ui/component.todo.js' %}"></script>
+
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+<script>
+
+function ExportToExcel(type, fn, dl) {
+    var elt = document.getElementById('ranking-mitra');
+    var wb = XLSX.utils.table_to_book(elt, { sheet: "Ranking Mitra" });
+    return dl ?
+        XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
+        XLSX.writeFile(wb, fn || ('Data Ranking Mitra.' + (type || 'xlsx')));
+    }
+
+{% for dt in summarize  %}
+    colors = ["#727cf5", "#0acf97", "#fa5c7c", "#ffbc00"];
+    (dataColors = $("#campaign-sent-chart-{{ forloop.counter }}").data("colors")) &&
+    (colors = dataColors.split(","));
+
+    var series = [{data: []}]
+    var labels = []
+
+    {% for dt_series in dt.data_series %}
+        series[0].data.push({{dt_series}})
+        labels.push({{forloop.counter}})
+    {% endfor %}
+
+    var options = {
+    chart: { type: "bar", height: 60, sparkline: { enabled: !0 } },
+    plotOptions: { bar: { columnWidth: "60%" } },
+    colors: colors,
+    series: series,
+    labels:labels,
+    xaxis: { crosshairs: { width: 1 } },
+    tooltip: {
+        fixed: { enabled: !1 },
+        x: { show: !1 },
+        y: {
+        title: {
+            formatter: function (o) {
+            return "";
+            },
+        },
+        },
+        marker: { show: !1 },
+    },
+    };
+    new ApexCharts(document.querySelector("#campaign-sent-chart-{{ forloop.counter }}"), options).render();
+{% endfor %}
+
+var table = $("#ranking-mitra").DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: {
+        "url": "{% url 'dashboard:rank' %}",
+        "headers": {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": '{{csrf_token}}',
+        },
+        "data": function (d){
+            return $.extend({}, d, {
+                "kegiatan_filter": $('#kegiatan_filter').val(),
+            })
+        },
+        "type": "POST"
+    },
+
+    lengthMenu: [5, 25, 50, 100],
+    columns :[
+        {"data": 'petugas__petugas__nama_petugas'},
+        {"data": 'petugas__role__jabatan'},
+        {"data" : 'penilaian__kegiatan_penilaian__nama_kegiatan'},
+        {"data" : 'rerata'},
+        {"data" : 'ranking'},
+        {"data" : 'rerata_final'},
+        {"data" : 'ranking_final'},
+    ], 
+    keys: !0,
+    language: {
+        paginate: {
+        previous: "<i class='mdi mdi-chevron-left'>",
+        next: "<i class='mdi mdi-chevron-right'>",
+        },
+    },
+    drawCallback: function () {
+        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+    },
+});
+
+$('#kegiatan_filter').bind("keyup change", function (){
+    table.draw()
+})
+
+$('#redraw-table').on('click', function (){
+    table.draw();
+})
+
+</script>
+
+{% endblock tables-script-extend %}

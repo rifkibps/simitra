@@ -1,0 +1,767 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Mitra</a></li>
+                    <li class="breadcrumb-item active">Master Mitra</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger d-none" id="msgs-upload" role="alert">   
+           
+            <div id="messages-content">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+      <div class="card">
+          <div class="card-body">
+              <h4 class="header-title">Master Mitra</h4>
+              <p class="text-muted font-14">
+                Master Mitra berisi informasi data mitra bagi seluruh mitra yang pernah bergabung dalam kegiatan di BPS Kabupaten Muna. 
+              </p>
+
+              <ul class="nav nav-tabs nav-bordered mb-3">
+                <li class="nav-item">
+                    <a href="#petugas-preview" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                        Preview
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#input-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                        Input
+                    </a>
+                </li>
+
+                <li class="nav-item d-none" id="nav-item-import">
+                    <a href="#import-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                        Import
+                    </a>
+                </li>
+
+              </ul> <!-- end nav-->
+              <div class="tab-content">
+                    <div class="tab-pane show active" id="petugas-preview">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <a href="#offcanvasFilter"  data-bs-toggle="offcanvas" role="button" aria-controls="offcanvasFilter" class="btn btn-danger mb-2"><i class="mdi mdi-filter-menu me-2"></i> Filter Data</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table"><i class="mdi mdi-refresh"></i></button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-light dropdown-toggle mb-2 me-1" data-bs-toggle="dropdown" aria-expanded="false"> Akses <span class="caret"></span> </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="{% url 'master_petugas:role' %}">Role / Jabatan</a>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-light mb-2 me-1" data-bs-toggle="modal" data-bs-target="#import-modal">Import</button>
+                                    <a href="{% url 'master_petugas:mitra-export' %}" class="btn btn-light mb-2">Export</a>
+                                
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+                        <div class="table-responsive">
+                            <table id="basic-datatable" class="table table-centered table-striped w-100 dt-responsive nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Petugas</th>
+                                        <th>Nama Petugas</th>
+                                        <th>NIK</th>
+                                        <th>Email</th>
+                                        <th>No Telp</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                            
+                                <tbody>
+                        
+                                </tbody>
+                            </table>                                            
+                        </div>
+                    </div> <!-- end preview-->
+              
+                    <div class="tab-pane" id="input-tab">
+                        <p>Silahkan isikan data Peserta.</p>
+                        
+                        <form action="{% url 'master_petugas:index' %}" method="POST" id="formMasterPetugas" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" id="id_id">
+                            <div class="row mt-3">
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.nama_petugas.label }} & {{form.kode_petugas.label}}</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.kode_petugas.id_for_label}}">
+                                                {{form.kode_petugas}}
+                                                <label for="{{form.kode_petugas.id_for_label}}">{{ form.kode_petugas.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.kode_petugas.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.nama_petugas.id_for_label}}">
+                                                {{form.nama_petugas}}
+                                                <label for="{{form.nama_petugas.id_for_label}}">{{ form.nama_petugas.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.nama_petugas.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h5 class="mb-3 mt-4">{{ form.tgl_lahir.label }} & {{ form.pendidikan.label }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.tgl_lahir.id_for_label}}">
+                                                {{form.tgl_lahir}}
+                                                <label for="{{form.tgl_lahir.id_for_label}}">{{ form.tgl_lahir.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.tgl_lahir.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.pendidikan.id_for_label}}">
+                                                {{form.pendidikan}}
+                                                <label for="{{form.pendidikan.id_for_label}}">{{ form.pendidikan.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.pendidikan.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                                                        
+                                    <h5 class="mb-3 mt-4">{{ form.email.label }} dan {{ form.no_telp.label }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.email.id_for_label}}">
+                                                {{form.email}}
+                                                <label for="{{form.email.id_for_label}}">{{ form.email.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.email.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating errors" id="form_{{form.no_telp.id_for_label}}">
+                                                {{form.no_telp}}
+                                                <label for="{{form.no_telp.id_for_label}}">{{ form.no_telp.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.no_telp.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.nik.label }} dan {{ form.npwp.label }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-floating errors" id="form_{{form.nik.id_for_label}}">
+                                                {{form.nik}}
+                                                <label for="{{form.nik.id_for_label}}">{{ form.nik.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.nik.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating errors" id="form_{{form.npwp.id_for_label}}">
+                                                {{form.npwp}}
+                                                <label for="{{form.npwp.id_for_label}}">{{ form.npwp.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.npwp.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <h5 class="mb-3 mt-4">{{ form.pekerjaan.label }} & {{ form.agama.label }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-floating errors" id="form_{{form.pekerjaan.id_for_label}}">
+                                                {{form.pekerjaan}}
+                                                <label for="{{form.pekerjaan.id_for_label}}">{{ form.pekerjaan.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.pekerjaan.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating errors" id="form_{{form.agama.id_for_label}}">
+                                                {{form.agama}}
+                                                <label for="{{form.agama.id_for_label}}">{{ form.agama.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.agama.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mb-3 mt-4">{{ form.alamat.label }} dan {{ form.status.label }}</h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-floating errors" id="form_{{form.alamat.id_for_label}}">
+                                                {{form.alamat}}
+                                                <label for="{{form.alamat.id_for_label}}">{{ form.alamat.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.alamat.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating errors" id="form_{{form.status.id_for_label}}">
+                                                {{form.status}}
+                                                <label for="{{form.status.id_for_label}}">{{ form.status.label }}</label>
+                                                <div class="invalid-feedback" id="msg-{{form.status.id_for_label}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row mt-2">
+                                <div class="col-md">        
+                                     <button type="submit" class="btn btn-primary" id="submitFormPetugas">Kirim Data</button>
+                                     <button type="button" class="btn btn-danger" id="Resetformmitra">Reset Form</button>
+                                </div>
+                                
+                            </div>
+                        </form>
+       
+                    </div> <!-- end preview code-->
+
+                    <div class="tab-pane" id="import-tab">
+                        <h5>Preview File Upload</h5>
+
+                        <div class="table-responsive">
+                            <table id="preview-data-upload" class="table table-hover w-100 dt-responsive nowrap">
+                                <thead>
+                                  <tr>
+                                    <td></td>
+                                  </tr>
+                                </thead>
+                            
+                                <tbody>
+                                 
+                                </tbody>
+                            </table>                                            
+                        </div>
+
+                        <div class="row mb-2 mt-2">
+                            <div class="col-sm-6">
+                                <a href="" role="button" class="btn btn-danger mb-2">Back</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="confirm-submit-file"><i class="mdi mdi-send-check"></i> Upload File</button>
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+                        
+                        <div class="alert alert-danger mt-4 alert-dismissible d-none" role="alert" id="error-upload-files">
+                        </div>
+                    </div> <!-- end preview-->
+
+                </div> <!-- end tab-content-->
+
+          </div> <!-- end card body-->
+      </div> <!-- end card -->
+  </div><!-- end col-->
+</div>
+<!-- end row-->
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilter" aria-labelledby="offcanvasFilterLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasFilterLabel">Filter Mitra</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <h5>Filter by Pendidikan</h5>
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="pendidikan-select-filter">
+                       {% for value, text in form.pendidikan.field.choices %}
+                            <option value="{{ value }}">{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h5>Filter by Status</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="status-select-filter">
+                        {% for value, text in form.status.field.choices %}
+                            <option value="{{ value }}">{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-danger mt-3" id="reset-filter">Clear Filter</button>
+    </div>
+</div>
+
+
+<div id="import-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="compose-header-modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-colored-header bg-primary">
+                <h4 class="modal-title" id="compose-header-modalLabel">Import Master Petugas</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="p-1">
+                <div class="modal-body px-3 pt-3 pb-0">
+                    <h5>Upload Berkas Mitra</h5>
+                    <div class="mb-3">
+                        <ol>
+
+                            <li>Unduh template petugas: <br>
+                                
+                                <div class="mt-1">
+                                    <input type="number" class="form-control  form-control-sm d-inline" style="width:150px;" placeholder="Jumlah baris data" alt="Masukan jumlah data" id="number_rows">   
+                                    <button class="btn btn-primary btn-sm d-inline" id="get-templates-upload">Unduh</button>
+                                </div>
+                            </li>
+                            <br>
+                            <li>Upload file pada form berikut:</li>
+                        </ol>
+                    </div>
+
+                    <form action="" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <label for="{{form_upload.import_file.id_for_label}}" class="form-label"><h5>{{ form_upload.import_file.label }}</h5></label>
+                        <div class="mb-3">
+                            {{form_upload.import_file}}
+                        </div>
+                    </form> 
+
+                </div>
+                <div class="px-3 pb-3">
+                    <button type="button" class="btn btn-primary" id="btn-submit-file"><i class="mdi mdi-send me-1"></i> Upload file</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+    
+<!-- Success Alert Modal -->
+<div id="success-alert-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content modal-filled bg-success">
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <i class="dripicons-checkmark h1"></i>
+                    <h4 class="mt-2">Well Done!</h4>
+                    <p class="mt-3 message-feedback"></p>
+                    <button type="button" class="btn btn-light my-2" data-bs-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+
+<script>
+    'use strict'
+
+    var swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-primary'},
+        buttonsStyling: true
+    })
+
+    var table = $("#basic-datatable").DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": "{% url 'master_petugas:datatable-json' %}",
+            "headers": {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            "type": "POST",
+            "data": function (d){
+                return $.extend({}, d, {
+                    "pendidikan_filter": $('#pendidikan-select-filter').val(),
+                    "status_filter": $('#status-select-filter').val(),
+                })
+            },
+        },
+        columns :[
+            {"data": 'kode_petugas'},
+            {"data": 'nama_petugas'},
+            {"data": 'nik'},
+            {"data" : 'email'},
+            {"data" : 'no_telp'},
+            {"data" : 'status'},
+            {"data" : 'aksi'},
+        ],
+        lengthMenu: [5, 25, 50, 100,'All'],
+        columnDefs: [ {
+            'targets': [6], /* column index */
+            'orderable': false, /* true or false */
+        }],
+        keys: !0,
+        language: {
+            paginate: {
+            previous: "<i class='mdi mdi-chevron-left'>",
+            next: "<i class='mdi mdi-chevron-right'>",
+            },
+        },
+        drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        },
+    });
+
+    function preview_excel(table_id, field_file_id){
+        var input = $('#'+field_file_id).get(0).files[0]
+        readXlsxFile(input).then(function(data){
+           
+            var i = 0
+            $('#'+table_id+' tbody').html('') 
+            data.map((row, index) =>{
+                if (i==1){
+                    var throws = '<tr>'
+                        
+                    for (var key of row.slice(0, 13)){
+                        throws += '<th>' + key + '</th>'
+                    }
+
+                    throws += '</tr>'
+                    $('#'+table_id+' thead').html(throws) 
+                }
+    
+                if (i>1){
+                    var tdrows = '<tr>'
+                    var isnull = 0
+                    for (var key of row.slice(0, 13)){
+                        if ( key == null ){
+                            isnull += 1
+                        }
+                        tdrows += '<td>' + key + '</td>'
+                    }
+                    tdrows += '</tr>'
+                    if (isnull < 13) {
+                        $('#'+table_id+' tbody').append(tdrows) 
+                    }
+                }
+                i++
+            })
+            return true
+    
+        })
+    }
+
+    function editPetugas(e){
+        $('#formMasterPetugas').attr('action', "{% url 'master_petugas:update' %}")
+        $('#submitFormPetugas').html('Update Data')
+    
+        $.ajax({
+            url: '{% url 'master_petugas:detail' %}',
+            type: "POST",
+            dataType: "json",
+            data : {
+                'id' : e
+            },
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+                for (const [key, value] of Object.entries(data.instance)) {
+                    $('#id_'+key).val(value)
+                }
+                $('.nav-tabs a[href="#input-tab"]').tab('show');
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+        
+    }
+    
+    function hapusPetugas(e){
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin menghapus data mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: '{% url 'master_petugas:delete-petugas' %}',
+                    type: "POST",
+                    dataType: "json",
+                    data : {
+                        'id' : e
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+                        if (data.status == 'success'){
+                            Swal.fire(
+                                'Deleted!',
+                                data.message,
+                                'success'
+                                )
+                            table.ajax.reload();
+                        }else{
+                            Swal.fire(
+                                'Terjadi Kesalahan!',
+                                 data.message,
+                                'info'
+                            )
+                        }
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+        }) 
+
+    }
+
+    function openTabInput(){
+        var url = $(location).attr('href')
+        if (url.search('#input-tab') > 0) {
+            return $('.nav-tabs a[href="#input-tab"]').tab('show');
+        }
+    }
+
+    openTabInput()
+    table.draw()
+
+    $('#pendidikan-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#status-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $("#formMasterPetugas").on("submit", function (e){
+        e.preventDefault()
+      
+        var serializedData = $(this).serialize();
+        $('.invalid-feedback').html('')
+        $('.is_invalid').removeClass('is_invalid')
+        
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: serializedData,
+            
+            success: function (response) {
+                $('#messages-content').html(response["message"])
+                $('#msgs-upload').removeClass('alert-danger')
+                $('#msgs-upload').addClass('alert-success')
+                $('#msgs-upload').removeClass('d-none')
+                table.ajax.reload();
+                $('.nav-tabs a[href="#petugas-preview"]').tab('show');
+                $('#formMasterPetugas')[0].reset();
+            },
+            error: function (response) {
+                var errors = response["responseJSON"]["error"]
+                for (const [key, value] of Object.entries(errors)) {
+                    var msgs = '<ul>'
+                    value.forEach(function (item, index) {
+                    
+                        msgs += '<li>'+item+'</li>'
+                        });
+                    
+                    msgs += '</ul>'
+                    $('#id_'+ key).addClass('is-invalid');
+                    $('#msg-id_'+key).html(msgs)
+                }    
+            }
+        })
+
+    })
+
+    $('#UploadExcelPetugas').on('click', function (e){
+        $('#upload-petugas-excel').modal('show')
+    })
+
+    $("#form-upload-petugas").on("submit", function (e){
+        e.preventDefault()
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: function (response) {
+              
+                if (response.status == 'error') {
+                    
+                    var error_list = '<ol>'
+                    for (let i = 0; i < response.message.length; i++) {
+                        error_list += '<li class="p-1">'+ response.message[i].error +'</li>'
+                    }
+                    error_list += '</ol>'
+
+                    $("#error-upload-files").html(error_list)
+                    $("#error-upload-files").removeClass('d-none')
+                } else{
+                    $("#ConfirmUploadExcelPetugas").removeClass('d-none')
+                   
+                }
+            },
+            error: function (response) {
+                return console.log(response)
+            }
+        })
+    })
+
+    $('#reset-filter').on('click', function (){
+        $('#pendidikan-select-filter').prop('selectedIndex',0);
+        $('#status-select-filter').prop('selectedIndex',0);
+        table.draw();
+    })
+
+    $('#redraw-table').on('click', function (){
+        table.draw();
+    })
+    
+    $('#get-templates-upload').on('click', function(){
+
+        var numrows = $('#number_rows').val()
+        return window.location.replace("http://127.0.0.1:8000/master-petugas/template/" + numrows);
+    })
+
+    $('#{{form_upload.import_file.id_for_label}}').on('change', function(){
+        preview_excel('preview-data-upload', '{{form_upload.import_file.id_for_label}}')
+    })
+
+    $('#btn-submit-file').on('click', function(){
+        $('#nav-item-import').removeClass('d-none')
+        $('#import-modal').modal('toggle')
+        $('.nav-tabs a[href="#import-tab"]').tab('show');
+
+    })
+   
+    $('#confirm-submit-file').on('click', function(){
+          
+          swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin mengupload data mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, upload it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+
+                var data = new FormData();
+                data.append("import_file", $('#{{form_upload.import_file.id_for_label}}').get(0).files[0])
+             
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'master_petugas:upload-petugas' %}',
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: function (response) {
+                        
+                        if (response.status == 'error'){
+
+                            var content_msgs = '<strong>Terjadi kesalahan</strong> saat import data: <ol class="px-3 font-12">'
+
+                            for (let i = 0; i < response.messages.length; i++) {
+                                content_msgs += '<li>'+ response.messages[i] +'</li>'
+                            }
+                            
+                            $('#messages-content').html(content_msgs)
+                            $('#msgs-upload').removeClass('alert-success')
+                            $('#msgs-upload').addClass('alert-danger')
+                            $('#msgs-upload').removeClass('d-none')
+                        }else{
+                            var content_msgs = response.messages
+                            
+                            $('#messages-content').html(content_msgs)
+                            $('#msgs-upload').removeClass('alert-danger')
+                            $('#msgs-upload').addClass('alert-success')
+                            $('#msgs-upload').removeClass('d-none')
+                            table.ajax.reload();
+    
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        return console.log(xhr.responseText['messages'])
+                    }
+                })
+            } else if (
+             
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
+              swalWithBootstrapButtons.fire(
+                'Cancelled',
+                'Data successfully cancelled',
+                'error'
+              )
+            }
+        }) 
+    })
+
+    $('#Resetformmitra').on('click', function(e){
+
+        $('#formMasterPetugas')[0].reset();
+        $('#formMasterPetugas').attr('action', "{% url 'master_petugas:index' %}")
+        $('.was-validated').removeClass('was-validated')
+        $('#submitFormPetugas').html('Kirim Data')
+        $('.is_invalid').removeClass('is_invalid')
+        $('.invalid-feedback').html('')
+    })
+
+</script>
+
+{% endblock tables-script-extend %}

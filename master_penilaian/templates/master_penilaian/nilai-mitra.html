@@ -1,0 +1,975 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Penilaian</a></li>
+                    <li class="breadcrumb-item active">Nilai Mitra</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger d-none" id="msgs-upload" role="alert">   
+           
+            <div id="messages-content">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Master Nilai Mitra</h4>
+                <p class="text-muted font-14 mt-2">
+                    Master nilai mitra berisi informasi penilaian bagi seluruh mitra yang telah bergabung pada kegiatan BPS Kabupaten Muna.
+                </p>
+                
+                <ul class="nav nav-tabs nav-bordered mb-3">
+                    <li class="nav-item">
+                        <a href="#nilai-mitra-preview" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                            Nilai Mitra
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#nilai-mitra-preview-2" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                            Penilaian Mitra per Indikator
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#input-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                            Input
+                        </a>
+                    </li>
+
+                    <li class="nav-item d-none" id="nav-item-import">
+                        <a href="#import-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                            Import
+                        </a>
+                    </li>
+                </ul> <!-- end nav-->
+                <div class="tab-content">
+                      <div class="tab-pane show active" id="nilai-mitra-preview">
+                            <div class="row mb-2">
+                                <div class="col-sm-6">
+                                    <a href="#offcanvasFilter"  data-bs-toggle="offcanvas" role="button" aria-controls="offcanvasFilter" class="btn btn-danger mb-2"><i class="mdi mdi-filter-menu me-2"></i> Filter Data</a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-sm-end">
+                                        <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table"><i class="mdi mdi-refresh"></i></button>
+                                        <button type="button" class="btn btn-light mb-2 me-1" data-bs-toggle="modal" data-bs-target="#import-modal">Import</button>
+                                        <a href="{% url 'master_penilaian:export-nilai-mitra' %}" class="btn btn-light mb-2">Export</a>
+                                    </div>
+                                </div><!-- end col-->
+                            </div>
+
+                            <div class="table-responsive">
+                                <table id="basic-datatable" class="table table-centered table-striped w-100 dt-responsive nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Mitra</th>
+                                            <th>Mitra</th>
+                                            <th>Jabatan</th>
+                                            <th>Kegiatan Penilaian</th>
+                                            <th>Indikator Penilaian</th>
+                                            <th>Nilai</th> 
+                                            <th>Catatan</th>
+                                        </tr>
+                                    </thead>
+                                
+                                    <tbody>
+                                    </tbody>
+                                </table>                                            
+                            </div>
+
+                      </div> <!-- end preview-->
+                
+                      <div class="tab-pane" id="nilai-mitra-preview-2">
+
+                        <div class="row mb-2">
+                            <div class="col-sm-8 d-flex justify-content-start">
+                                <a href="#offcanvasFilter2"  data-bs-toggle="offcanvas" role="button" aria-controls="offcanvasFilter2" class="btn btn-danger mb-2 d-inline"><i class="mdi mdi-filter-menu me-2"></i> Filter Data</a>&emsp;
+                                <select class="form-select mb-2 d-inline" id="nilai-mitra-filter-survey" style="width:200px">
+                                    <option value="">Pilih Survei</option>
+                                    {% for dt in data_survei %}
+                                         <option value="{{ dt.id }}">{{ dt.nama }}</option>
+                                     {% endfor %}
+                                 </select>&ensp;
+                                 <select class="form-select mb-2 d-inline" id="nilai-mitra-filter-kegiatan" style="width:200px">
+                                    <option value="">Pilih Penilaian</option>
+                                 </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table-2"><i class="mdi mdi-refresh"></i></button>
+                                    <button onclick="ExportToExcel('xlsx')" class="btn btn-light mb-2">Export</button>
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="basic-datatable-2" class="table table-centered table-striped w-100 dt-responsive nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>ID Mitra</th>
+                                        <th>Mitra</th>
+                                        <th>Jabatan</th>
+                                        <th>Kegiatan Penilaian</th>
+                                        <th>Penilaian Indikator</th>
+                                    </tr>
+                                </thead>
+                                  
+                                <tbody>
+                                    <tr class="text-center">
+                                        <td colspan="5">Silahkan Pilih Kegiatan Survei dan Penilaian</td>
+                                    </tr>
+                                </tbody>
+
+                            </table>                                            
+                        </div>
+
+                      </div> <!-- end preview-->
+
+                      <div class="tab-pane" id="input-tab">
+                          <p>Silahkan isikan data Penilaian Peserta.</p>
+                          <form action="{% url 'master_penilaian:nilai-mitra' %}" method="POST" id="formPenilaianPetugas">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" id="id_id">
+
+                            <div class="row mt-3">
+                                <div class="col-sm-3">
+                                    <h5 class="mb-3">Survei</h5>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select class="form-select mb-2" id="field_survey" name="field_survey">
+                                        <option value="">Pilih Survei</option>
+                                        {% for dt in data_survei %}
+                                             <option value="{{ dt.id }}">{{ dt.nama }}</option>
+                                         {% endfor %}
+                                     </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h5 class="mb-3">Kegiatan Penilaian</h5>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select class="form-select mb-2 d-inline" id="field_kegiatan" name="field_kegiatan">
+                                        <option value="">Pilih Kegiatan</option>
+                                     </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h5 class="mb-3">Mitra</h5>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select class="form-select mb-2 d-inline" id="field_mitra" name="field_mitra">
+                                        <option value="">Pilih Mitra</option>
+                                     </select>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <p>Silahkan isikan nilai mitra.</p>
+                            <div class="row">
+                                <div class="col-lg">
+                                    
+                                    <table class="table table-sm table-centered table-striped w-100 dt-responsive nowrap" id="form-indikator-nilai">
+                                        <thead>
+                                            <tr class="bg-primary text-white">
+                                                <th>No</th>
+                                                <th>Indikator Penilaian</th>
+                                                <th>Nilai Indikator</th>
+                                                <th>Catatan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="row mt-2">
+                                <div class="col-lg">        
+                                    <button type="button" class="btn btn-danger" id="ResetformPenilaianPetugas">Reset Form</button>
+                                    <button type="submit" class="btn btn-primary" id="submitformPenilaianPetugas">Kirim Data</button>
+                                </div>
+                            </div>
+                        
+                        </form>
+                      </div> <!-- end preview code-->
+
+                      <div class="tab-pane" id="import-tab">
+                        <h5>Preview File Upload</h5>
+
+                        <div class="table-responsive">
+                            <table id="preview-data-upload" class="table table-sm table-hover w-100 dt-responsive nowrap">
+                                <thead>
+                                  <tr>
+                                    <td></td>
+                                  </tr>
+                                </thead>
+                            
+                                <tbody>
+                                 
+                                </tbody>
+                            </table>                                            
+                        </div>
+
+                        <div class="row mb-2 mt-2">
+                            <div class="col-sm-6">
+                                <a href="" role="button" class="btn btn-danger mb-2">Back</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="confirm-submit-file"><i class="mdi mdi-refresh"></i>Upload File</button>
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+                        
+                        <div class="alert alert-danger mt-4 alert-dismissible d-none" role="alert" id="error-upload-files">
+                        </div>
+                      </div> <!-- end preview-->
+
+                </div> <!-- end tab-content-->
+  
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+</div>
+<!-- end row-->
+
+<div id="import-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="compose-header-modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-colored-header bg-primary">
+                <h4 class="modal-title" id="compose-header-modalLabel">Import Master Petugas</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="p-1">
+                <div class="modal-body px-3 pt-3 pb-0">
+                    <h5>Upload Berkas Mitra</h5>
+                    <div class="mb-3">
+                        <ol>
+                            <li>Unduh template petugas: <br>
+                                
+                                <div class="mt-1 d-flex justify-content-start">
+                                    <select class="form-select form-control-sm d-inline" style="width:250px;"  id="filter-kegiatan-template">
+                                        <option selected="" value="">Kegiatan Penilaian</option>
+                                        {% for dt in data_kegiatan_penilaian %}
+                                        <option value="{{dt.id}}">[{{dt.survey.nama}}] {{dt.nama_kegiatan}}</option>
+                                        {% endfor %}
+                                    </select>&ensp;
+                                     <button class="btn btn-primary btn-sm d-inline" id="get-templates-upload">Unduh</button>
+                                </div>
+                            </li>
+                            <br>
+                            <li>Upload file pada form berikut:</li>
+                        </ol>
+                    </div>
+
+                    <form action="" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <label for="{{form_upload.import_file.id_for_label}}" class="form-label"><h5>{{ form_upload.import_file.label }}</h5></label>
+                        <div class="mb-3">
+                            {{form_upload.import_file}}
+                        </div>
+                    </form> 
+
+                </div>
+                <div class="px-3 pb-3">
+                    <button type="button" class="btn btn-primary" id="btn-submit-file"><i class="mdi mdi-send me-1"></i> Upload file</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilter2" aria-labelledby="offcanvasFilterLabel2">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasFilterLabel2">Filter Nilai Mitra</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <h5 class="mt-3">Filter by Role/Jabatan</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="role-select-filter-2">
+                        <option selected="" value="">Filter By Jabatan</option>
+                        {% for dt in data_role %}
+                        <option value="{{dt.id}}">{{dt.jabatan}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-danger mt-3" id="reset-filter-2">Clear Filter</button>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilter" aria-labelledby="offcanvasFilterLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasFilterLabel">Filter Nilai Mitra</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <h5>Filter by Mitra</h5>
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="mitra-select-filter">
+                        <option selected="" value="">Filter By Mitra</option>
+                        {% for dt in data_mitra %}
+                        <option value="{{dt.id}}" data-tokens="{{dt.petugas.kode_petugas}} {{dt.petugas.nama_petugas}}">[{{dt.petugas.kode_petugas}}] {{dt.petugas.nama_petugas}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h5>Filter by Survei</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="survei-select-filter">
+                        <option selected="" value="">Filter By Survei</option>
+                        {% for dt in data_survei %}
+                        <option value="{{dt.id}}">{{dt.nama}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <h5 class="mt-3">Filter by Role/Jabatan</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="role-select-filter">
+                        <option selected="" value="">Filter By Jabatan</option>
+                        {% for dt in data_role %}
+                        <option value="{{dt.id}}">{{dt.jabatan}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <h5 class="mt-3">Filter by Kegiatan Penilaian</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="kegiatan-select-filter">
+                        <option selected="" value="">Filter By Kegiatan Penilaian</option>
+                        {% for dt in data_kegiatan_penilaian %}
+                        <option value="{{dt.id}}">{{dt.nama_kegiatan}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-danger mt-3" id="reset-filter">Clear Filter</button>
+    </div>
+</div>
+
+<!-- Success Alert Modal -->
+<div id="success-alert-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content modal-filled bg-success">
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <i class="dripicons-checkmark h1"></i>
+                    <h4 class="mt-2">Well Done!</h4>
+                    <p class="mt-3 message-feedback"></p>
+                    <button type="button" class="btn btn-light my-2" data-bs-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+<script>
+    var swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-primary'},
+        buttonsStyling: true
+    })
+
+    function ExportToExcel(type, fn, dl) {
+        var elt = document.getElementById('basic-datatable-2');
+        var wb = XLSX.utils.table_to_book(elt, { sheet: "Nilai Mitra" });
+        return dl ?
+            XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
+            XLSX.writeFile(wb, fn || ('Data Nilai Mitra per Indikator.' + (type || 'xlsx')));
+        }
+
+    var table = $("#basic-datatable").DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": "{% url 'master_penilaian:nilai-mitra-json' %}",
+            "headers": {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            "data": function (d){
+                return $.extend({}, d, {
+                    "role_filter": $('#role-select-filter').val(),
+                    "survei_filter": $('#survei-select-filter').val(),
+                    "kegiatan_filter": $('#kegiatan-select-filter').val(),
+                    "mitra_filter": $('#mitra-select-filter').val()
+
+                })
+            },
+            "type": "POST"
+        },
+
+        columns :[
+            {"data": 'petugas__petugas__kode_petugas'},
+            {"data": 'petugas__petugas__nama_petugas'},
+            {"data": 'petugas__role__jabatan'},
+            {"data" : 'penilaian__kegiatan_penilaian__nama_kegiatan'},
+            {"data" : 'penilaian__indikator_penilaian__nama_indikator'},
+            {"data" : 'nilai'},
+            {"data" : 'catatan'},
+           
+        ], 
+        keys: !0,
+        language: {
+            paginate: {
+            previous: "<i class='mdi mdi-chevron-left'>",
+            next: "<i class='mdi mdi-chevron-right'>",
+            },
+        },
+        drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        },
+    });
+
+    $('#role-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#survei-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+    
+    $('#kegiatan-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#mitra-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    function resetForm(){
+        $('#formPenilaianPetugas')[0].reset();
+        $('.was-validated').removeClass('was-validated')
+        $('#submitformPenilaianPetugas').html('Kirim Data')
+    }
+
+    function preview_excel(table_id, field_file_id){
+        var input = $('#'+field_file_id).get(0).files[0]
+        readXlsxFile(input).then(function(data){
+           
+            var i = 0
+            $('#'+table_id+' tbody').html('') 
+            console.log(data)
+            data.map((row, index) =>{
+                if (i==1){
+                    var throws = '<tr>'
+                        
+                    for (var key of row){
+                        throws += '<th>' + key + '</th>'
+                    }
+
+                    throws += '</tr>'
+                    $('#'+table_id+' thead').html(throws) 
+                }
+    
+                if (i>1){
+                    var tdrows = '<tr>'
+                    var isnull = 0
+                    for (var key of row){
+                        if ( key == null ){
+                            isnull += 1
+                        }
+                        tdrows += '<td>' + key + '</td>'
+                    }
+                    tdrows += '</tr>'
+                 
+                    if (isnull < data[1].length) {
+                        $('#'+table_id+' tbody').append(tdrows) 
+                    }
+                }
+                i++
+            })
+            return true
+    
+        })
+    }
+
+    function deleteNilaiMitra (e){
+        var kegiatan = $('#nilai-mitra-filter-kegiatan').val()
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin menghapus indikator penilaian mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{% url 'master_penilaian:delete-nilai-mitra' %}',
+                    type: "POST",
+                    dataType: "json",
+                    data : {
+                        'id_alokasi' : e,
+                        'id_kegiatan' : kegiatan
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {  
+                        if (data.status == 'success'){
+                            Swal.fire(
+                                'Deleted!',
+                                data.message,
+                                'success'
+                            )
+                            if ( $.fn.DataTable.isDataTable('#basic-datatable-2') ) {
+                                get_data_tables_nilai({
+                                    'kegiatan_penilaian' : $('#nilai-mitra-filter-kegiatan').val()
+                                })
+                            }
+                                  
+                        }else{
+                            Swal.fire(
+                                'Terjadi Kesalahan!',
+                                 data.message,
+                                'info'
+                            )
+                        }
+                        
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+           
+            }
+        }) 
+    }
+
+    function updateNilaiMitra (e){
+
+        var kegiatan = $('#nilai-mitra-filter-kegiatan').val()
+
+        $.ajax({
+            url: '{% url 'master_penilaian:get-nilai-mitra' %}',
+            type: "POST",
+            dataType: "json",
+            data : {
+                'id_alokasi' : e,
+                'id_kegiatan' : kegiatan
+
+            },
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+
+                if (data.status == 'success'){
+                    $('#field_survey').val(data.data_mitra.survey__id)
+                    var opt_mitra = '<option value="'+ data.data_mitra.id +'" selected>['+data.data_mitra.petugas__kode_petugas + '] '+ data.data_mitra.petugas__nama_petugas+' | ' +data.data_mitra.role__jabatan + '</option>'
+                    var opt_kegiatan = '<option value="'+ data.data_kegiatan.id +'" selected>'+data.data_kegiatan.nama_kegiatan + '</option>'
+                    $('#field_mitra').html(opt_mitra)
+                    $('#field_kegiatan').html(opt_kegiatan)
+                }
+                $('.nav-tabs a[href="#input-tab"]').tab('show');
+
+                tbody_rows = ''
+                for (let i = 0; i < data.nilai_mitra.length; i++) {
+                    tbody_rows += `<tr>
+                        <td>`+(i+1)+`.</td>
+                        <td>`+data.nilai_mitra[i]['penilaian__indikator_penilaian__nama_indikator'] +`</td>
+                        <td>
+                            <input type="number" class="form-control d-inline" name="nilai_indikator_`+data.nilai_mitra[i]['penilaian'] +`" placeholder="Isikan nilai" alt="Isikan nilai" min="0" max="100" onkeyup="if(this.value > 100 || this.value < 0) this.value = null;" value="`+data.nilai_mitra[i]['nilai'] +`">   
+                        </td>
+                        <td>
+                            <textarea class="form-control" name="catatan_indikator_`+data.nilai_mitra[i]['penilaian'] +`" cols="30" rows="5">`+data.nilai_mitra[i]['catatan'] +`</textarea>
+                        </td>
+                    </tr>`          
+                 }
+                $('#form-indikator-nilai tbody').html(tbody_rows)
+
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    $('#formPenilaianPetugas').on('submit', function(e){
+
+        e.preventDefault()
+       
+        var serializedData = $(this).serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: serializedData,
+            success: function (response) {
+
+
+                if (response.status == 'success'){
+                            
+                    $('#messages-content').html(response.messages)
+                    $('#msgs-upload').removeClass('alert-danger')
+                    $('#msgs-upload').addClass('alert-success')
+                    $('#msgs-upload').removeClass('d-none')
+
+                }else{
+                    Swal.fire(
+                        'Terjadi Kesalahan!',
+                         response.messages,
+                        'info'
+                    )
+                }
+                
+                table.ajax.reload();
+            },
+            error: function (response) {
+            console.log(response)
+            }
+        })
+    })
+
+    $('#reset-filter').on('click', function (){
+        $('#role-select-filter').prop('selectedIndex',0);
+        $('#survei-select-filter').prop('selectedIndex',0);
+        $('#kegiatan-select-filter').prop('selectedIndex',0);
+        table.draw();
+    })
+
+    $('#reset-filter-2').on('click', function (){
+        $('#role-select-filter-2').prop('selectedIndex',0);
+        get_data_tables_nilai({
+            'kegiatan_penilaian' : $('#nilai-mitra-filter-kegiatan').val()
+        })
+    })
+
+    $('#get-templates-upload').on('click', function(){
+
+        var kegiatan = $('#filter-kegiatan-template').val()
+        return window.location.replace("http://127.0.0.1:8000/nilai-mitra/template/" + kegiatan);
+    })
+
+    $('#{{form_upload.import_file.id_for_label}}').on('change', function(){
+        preview_excel('preview-data-upload', '{{form_upload.import_file.id_for_label}}')
+    })
+
+    $('#btn-submit-file').on('click', function(){
+        $('#nav-item-import').removeClass('d-none')
+        $('#import-modal').modal('toggle')
+        $('.nav-tabs a[href="#import-tab"]').tab('show');
+
+    })
+   
+    
+    $('#confirm-submit-file').on('click', function(){
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: 'btn btn-primary'},
+            buttonsStyling: true
+          })
+          
+          swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin mengupload data mitra?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, upload it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+
+                var data = new FormData();
+                data.append("import_file", $('#{{form_upload.import_file.id_for_label}}').get(0).files[0])
+             
+                $.ajax({
+                    url: '{% url 'master_penilaian:upload-nilai-mitra' %}',
+                    type: "POST",   
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: function (response) {
+                        
+                        if (response.status == 'error'){
+
+                            var content_msgs = '<strong>Terjadi kesalahan</strong> saat import data: <ol class="px-3 font-12">'
+
+                            for (let i = 0; i < response.messages.length; i++) {
+                                content_msgs += '<li>'+ response.messages[i] +'</li>'
+                            }
+                            
+                            $('#messages-content').html(content_msgs)
+                            $('#msgs-upload').removeClass('alert-success')
+                            $('#msgs-upload').addClass('alert-danger')
+                            $('#msgs-upload').removeClass('d-none')
+                        }else{
+                            var content_msgs = response.messages
+                            
+                            $('#messages-content').html(content_msgs)
+                            $('#msgs-upload').removeClass('alert-danger')
+                            $('#msgs-upload').addClass('alert-success')
+                            $('#msgs-upload').removeClass('d-none')
+                            table.ajax.reload();
+    
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        return console.log(xhr.responseText['messages'])
+                    }
+                })
+            } else if (
+             
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
+              swalWithBootstrapButtons.fire(
+                'Cancelled',
+                'Data successfully cancelled',
+                'error'
+              )
+            }
+        }) 
+    })
+
+    function get_data_penilaian_by_survei(data, field_target, url){
+
+        $.ajax({
+            url: url,
+            type: "POST",   
+            dataType: "json",
+            data : data,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+                var option = '<option value="">Pilih Penilaian</option>'
+                for (let i = 0; i < data.instance.length; i++) {
+                    option += '<option value="'+ data.instance[i]['id'] +'">'+ data.instance[i]['nama_kegiatan'] +'</option>'
+                }
+                $(field_target).html(option)
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    function get_data_tables_nilai(data){
+        if ( $.fn.DataTable.isDataTable('#basic-datatable-2') ) {
+            $('#basic-datatable-2').DataTable().destroy();
+        }
+          
+        var thead_def = `<tr>
+                <th>ID Mitra</th>
+                <th>Mitra</th>
+                <th>Jabatan</th>
+                <th>Kegiatan Penilaian</th>
+                <th>Penilaian Indikator</th>
+            </tr>`
+          
+        var tbody_def = `<tr class="text-center">
+                <td colspan="5">Silahkan Pilih Kegiatan Survei dan Penilaian</td>
+            </tr>`
+
+        $('#basic-datatable-2 thead').html(thead_def);
+        $('#basic-datatable-2 tbody').html(tbody_def);
+
+        $.ajax({
+            url: '{% url 'master_penilaian:generate-table-nilai' %}',
+            type: "POST",   
+            dataType: "json",
+            data : data,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+                
+                if (data.status == 'success'){
+                    $('#basic-datatable-2 thead').html(data.data['thead'] )
+                    $('#basic-datatable-2 tbody').html(data.data['tbody'] )
+                    $("#basic-datatable-2").DataTable(
+                        {
+                            language: {
+                                paginate: {
+                                previous: "<i class='mdi mdi-chevron-left'>",
+                                next: "<i class='mdi mdi-chevron-right'>",
+                                },
+                            },
+                            drawCallback: function () {
+                                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                            },
+                        }
+                    )
+                }
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    $('#nilai-mitra-filter-survey').on('change', function(){
+
+        var thead_def = `<tr>
+            <th>ID Mitra</th>
+            <th>Mitra</th>
+            <th>Jabatan</th>
+            <th>Kegiatan Penilaian</th>
+            <th>Penilaian Indikator</th>
+        </tr>`
+      
+        var tbody_def = `<tr class="text-center">
+                <td colspan="5">Silahkan Pilih Kegiatan Survei dan Penilaian</td>
+            </tr>`
+
+            
+        if ($('#nilai-mitra-filter-survey').val() == '') {
+            if ( $.fn.DataTable.isDataTable('#basic-datatable-2') ) {
+                $('#basic-datatable-2').DataTable().destroy();
+            }
+            $('#basic-datatable-2 thead').html(thead_def);
+            $('#basic-datatable-2 tbody').html(tbody_def);
+            $('#nilai-mitra-filter-kegiatan').html('<option value="">Pilih Penilaian</option>');
+
+            return
+        }
+        var data = {'survey_id' : $('#nilai-mitra-filter-survey').val()}
+        get_data_penilaian_by_survei(data, '#nilai-mitra-filter-kegiatan',  '{% url 'master_penilaian:get-penilaian-by-survei' %}')
+    })
+
+    $('#nilai-mitra-filter-kegiatan').on("change", function(){
+        get_data_tables_nilai({
+            'kegiatan_penilaian' : $('#nilai-mitra-filter-kegiatan').val()
+        })
+    })
+
+    $('#field_survey').on('change', function(){
+        var data_survei = {'survey_id' : $(this).val()}
+        get_data_penilaian_by_survei(data_survei, '#field_kegiatan',  '{% url 'master_penilaian:get-penilaian-by-survei' %}')
+    })
+
+    $('#field_kegiatan').on('change', function(){
+
+        $.ajax({
+            url: '{% url 'master_penilaian:get-alokasi-by-survei' %}',
+            type: "POST",   
+            dataType: "json",
+            data :  {'survey_id' : $('#field_survey').val(), 'penilaian_id' : $(this).val()},
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+                var option = '<option value="">Pilih Mitra</option>'
+                for (let i = 0; i < data.instance.length; i++) {
+                    option += '<option value="'+ data.instance[i]['id'] +'">['+ data.instance[i]['petugas__kode_petugas'] +'] '+ data.instance[i]['petugas__nama_petugas'] + ' | ' + data.instance[i]['role__jabatan']  + ' </option>'
+                }
+                $('#field_mitra').html(option)
+
+                tbody_rows = ''
+                for (let i = 0; i < data.instance_2.length; i++) {
+                    tbody_rows += `<tr>
+                        <td>`+(i+1)+`.</td>
+                        <td>`+data.instance_2[i]['indikator_penilaian__nama_indikator'] +`</td>
+                        <td>
+                            <input type="number" class="form-control d-inline" name="nilai_indikator_`+data.instance_2[i]['id'] +`" placeholder="Isikan nilai" alt="Isikan nilai" min="0" max="100" onkeyup="if(this.value > 100 || this.value < 0) this.value = null;">   
+                        </td>
+                        <td>
+                            <textarea class="form-control" name="catatan_indikator_`+data.instance_2[i]['id'] +`" cols="30" rows="5"></textarea>
+                        </td>
+                    </tr>`          
+                 }
+                $('#form-indikator-nilai tbody').html(tbody_rows)
+                
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+
+    })
+
+    $('#redraw-table').on('click', function (){
+        table.draw();
+    })
+
+    $('#redraw-table-2').on('click', function (){
+        get_data_tables_nilai({
+            'kegiatan_penilaian' : $('#nilai-mitra-filter-kegiatan').val()
+        })
+    })
+
+    $('#ResetformPenilaianPetugas').on('click', function(e){
+        resetForm()
+    })
+
+    $('#role-select-filter-2').on('change', function(){
+        get_data_tables_nilai({
+            'kegiatan_penilaian' : $('#nilai-mitra-filter-kegiatan').val(),
+            'filter_role_nilai_mitra' : $(this).val()
+        })
+    })
+
+</script>
+
+{% endblock tables-script-extend %}

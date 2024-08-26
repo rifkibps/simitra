@@ -1,0 +1,442 @@
+{% extends 'base/detached-layout/datables.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Penilaian</a></li>
+                    <li class="breadcrumb-item active">Kegiatan Penilaian</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger d-none" id="msgs-upload" role="alert">   
+           
+            <div id="messages-content">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Kegiatan Penilaian</h4>
+                <p class="text-muted font-14">
+                    Kegiatan penilaian berisi informasi penilaian untuk menilai kinerja mitra dari kegiatan survei yang telah dilaksanakan di BPS Kabupaten Muna.
+                </p>
+  
+                <ul class="nav nav-tabs nav-bordered mb-3">
+                      <li class="nav-item">
+                          <a href="#kegiatan-penilaian-preview" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                              Preview
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="#input-tab" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                              Input
+                          </a>
+                      </li>
+                </ul> <!-- end nav-->
+                <div class="tab-content">
+                      <div class="tab-pane show active" id="kegiatan-penilaian-preview">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <a href="#offcanvasFilter"  data-bs-toggle="offcanvas" role="button" aria-controls="offcanvasFilter" class="btn btn-danger mb-2"><i class="mdi mdi-filter-menu me-2"></i> Filter Data</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end">
+                                    <button type="button" class="btn btn-success mb-2 me-1" id="redraw-table"><i class="mdi mdi-refresh"></i></button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-light dropdown-toggle mb-2 me-1" data-bs-toggle="dropdown" aria-expanded="false"> Tambah <span class="caret"></span> </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="{% url 'master_survei:index' %}#input-tab">Survei Baru</a>
+                                        </div>
+                                    </div>
+                                   <a href="{% url 'master_penilaian:export-kegiatan' %}" class="btn btn-light mb-2">Export</a>
+                                </div>
+                            </div><!-- end col-->
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table id="basic-datatable" class="table table-centered table-striped w-100 dt-responsive nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>Kegiatan Penilaian</th>
+                                        <th>Survei</th>
+                                        <th>Tgl Penilaian</th>
+                                        <th>Role Permitted</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th> 
+                                    </tr>
+                                </thead>
+        
+                                <tbody>
+
+                                </tbody>
+                            </table>                                            
+                        </div>
+                      </div> <!-- end preview-->
+                
+                      <div class="tab-pane" id="input-tab">
+                          <p>Silahkan isikan data Penilaian Peserta.</p>
+                          <form action="{% url 'master_penilaian:index' %}" method="POST" id="formKegiatanPenilaianPetugas" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="id" id="id_id">
+                            <div class="row mt-3">
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.nama_kegiatan.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.nama_kegiatan.id_for_label}}">
+                                        {{form.nama_kegiatan}}
+                                        <label for="{{form.nama_kegiatan.id_for_label}}">{{ form.nama_kegiatan.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.nama_kegiatan.id_for_label}}">
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mb-3 mt-4">{{ form.tgl_penilaian.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.tgl_penilaian.id_for_label}}">
+                                        {{form.tgl_penilaian}}
+                                        <label for="{{form.tgl_penilaian.id_for_label}}">{{ form.tgl_penilaian.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.tgl_penilaian.id_for_label}}">
+                                        </div>
+                                    </div>
+                                
+                                    <h5 class="mt-3">{{ form.role_permitted.label }}</h5>
+                                    <p class="text-muted">Pilih role/jabatan mitra yang dapat mengakses kegiatan penilaian ini.</p>
+                                    <div class="form-floating errors" id="form_{{form.role_permitted.id_for_label}}">
+                                        {{form.role_permitted}}
+                                        <label for="{{form.role_permitted.id_for_label}}">{{ form.role_permitted.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.role_permitted.id_for_label}}">
+                                        </div>
+                                    </div>
+
+                                </div>
+                            
+                                <div class="col-lg-6">
+                                    <h5 class="mb-3">{{ form.survey.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.survey.id_for_label}}">
+                                        {{form.survey}}
+                                        <label for="{{form.survey.id_for_label}}">{{ form.survey.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.survey.id_for_label}}">
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mb-3 mt-4">{{ form.status.label }}</h5>
+                                    <div class="form-floating errors" id="form_{{form.status.id_for_label}}">
+                                        {{form.status}}
+                                        <label for="{{form.status.id_for_label}}">{{ form.status.label }}</label>
+                                        <div class="invalid-feedback" id="msg-{{form.status.id_for_label}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row mt-2">
+                                <div class="col-lg">        
+                                     <button type="submit" class="btn btn-primary" id="submitformKegiatanPenilaianPetugas">Kirim Data</button>
+                                     <button type="button" class="btn btn-danger" id="ResetformKegiatanPenilaianPetugas">Reset</button>
+                                </div>
+                            </div>
+                        
+                        </form>
+                      </div> <!-- end preview code-->
+                </div> <!-- end tab-content-->
+  
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+  </div>
+  <!-- end row-->
+  
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilter" aria-labelledby="offcanvasFilterLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasFilterLabel">Filter Kegiatan Penilaian</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <h5>Filter by Survei</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="survei-select-filter">
+                        <option selected="" value="">Filter By Survei</option>
+                        {% for dt in data_survei %}
+                        <option value="{{dt.id}}">{{dt.nama}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-3">Filter by Status</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                     <select class="form-select" id="status-select-filter">
+                        <option selected="" value="">Filter By Status</option>
+                        {% for value, text in form.status.field.choices %}
+                            <option value="{{ value }}">{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-3">Filter by Role Permitted</h5>
+        <div class="row">
+            <div class="col-11">
+                <div class="d-flex align-items-center">
+                    <select class="form-select" id="role-select-filter">
+                        <option selected="" value="">Filter By Role Permitted</option>
+                        {% for dt in roles %}
+                            <option value="{{ dt.id }}">{{ dt.jabatan }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-danger mt-3" id="reset-filter">Clear Filter</button>
+    </div>
+</div>
+
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+
+<script>
+
+    var swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-primary'},
+        buttonsStyling: true
+    })
+
+
+    var table = $("#basic-datatable").DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": "{% url 'master_penilaian:datatable-json' %}",
+            "headers": {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            "data": function (d){
+                return $.extend({}, d, {
+                    "survei_filter": $('#survei-select-filter').val(),
+                    "status_filter": $('#status-select-filter').val(),
+                    "role_filter": $('#role-select-filter').val(),
+                })
+            },
+            "type": "POST"
+        },
+        columns :[
+            {"data": 'nama_kegiatan'},
+            {"data": 'survey__nama'},
+            {"data" : 'tgl_penilaian'},
+            {"data": 'role_permitted__jabatan'},
+            {"data" : 'status'},
+            {"data" : 'aksi'},
+        ],
+        lengthMenu: [5, 25, 50, 100,'All'],
+        columnDefs: [ {
+            'targets': [5], /* column index */
+            'orderable': false, /* true or false */
+            'className': "text-center"
+        }],
+        keys: !0,
+        language: {
+            paginate: {
+            previous: "<i class='mdi mdi-chevron-left'>",
+            next: "<i class='mdi mdi-chevron-right'>",
+            },
+        },
+        drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        },
+    });
+
+    $('#survei-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#status-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    $('#role-select-filter').bind("keyup change", function (){
+        table.draw()
+    })
+
+    function resetForm(){
+        $('#formKegiatanPenilaianPetugas')[0].reset();
+        $('.was-validated').removeClass('was-validated')
+        $('#submitformKegiatanPenilaianPetugas').html('Kirim Data')
+        $('#formKegiatanPenilaianPetugas').attr('action', "{% url 'master_penilaian:index' %}")
+    }
+
+    function editKegiatanPenilaian(e){
+        $('#formKegiatanPenilaianPetugas').attr('action', "{% url 'master_penilaian:update-kegiatan' %}")
+        $('#submitformKegiatanPenilaianPetugas').html('Update Data')
+    
+        $.ajax({
+            url: '{% url 'master_penilaian:detail-kegiatan' %}',
+            type: "POST",
+            dataType: "json",
+            data : {
+                'id' : e
+            },
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": '{{csrf_token}}',
+            },
+            success: (data) => {
+                console.log(Object.entries(data.instance))
+
+                for (const [key, value] of Object.entries(data.instance)) {
+                    $('#id_'+key).val(value)
+
+                    if (key == 'role_permitted'){
+                        $('#id_'+key).val(value)
+                    }
+                }
+                $('.nav-tabs a[href="#input-tab"]').tab('show');
+                table.ajax.reload();
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
+
+    function hapusKegiatanPenilaian(e){
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Apakah anda yakin ingin menghapus kegiatan penilaian?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.isConfirmed) {
+                
+                $.ajax({
+                    url: '{% url 'master_penilaian:delete-kegiatan' %}',
+                    type: "POST",
+                    dataType: "json",
+                    data : {
+                        'id' : e
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+                        if (data.status == 'success'){
+                            Swal.fire(
+                                'Deleted!',
+                                data.message,
+                                'success'
+                                )
+                            table.ajax.reload();
+                        }else{
+                            Swal.fire(
+                                'Terjadi Kesalahan!',
+                                 data.message,
+                                'info'
+                            )
+                        }
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+        }) 
+
+    }
+
+
+    $('#formKegiatanPenilaianPetugas').on('submit', function(e){
+
+        e.preventDefault()
+        
+        var serializedData = $(this).serialize();
+        $('.invalid-feedback').html('')
+        $('.is_invalid').removeClass('is_invalid')
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: serializedData,
+            success: function (response) {
+                
+                $('#messages-content').html(response["message"])
+                $('#msgs-upload').removeClass('alert-danger')
+                $('#msgs-upload').addClass('alert-success')
+                $('#msgs-upload').removeClass('d-none')
+                table.ajax.reload();
+                resetForm()
+
+                return $('.nav-tabs a[href="#kegiatan-penilaian-preview"]').tab('show');
+            },
+            error: function (response) {
+
+                var errors = response["responseJSON"]["error"]
+               
+                for (const [key, value] of Object.entries(errors)) {
+                    var msgs = '<ul>'
+                    value.forEach(function (item, index) {
+                    
+                        msgs += '<li>'+item+'</li>'
+                        });
+                    
+                    msgs += '</ul>'
+        
+                    $('#id_'+ key).addClass('is-invalid');
+                    $('#msg-id_'+key).html(msgs)
+                    
+                }    
+            }
+        })
+    })
+
+    
+    $('#reset-filter').on('click', function (){
+        $('#survei-select-filter').prop('selectedIndex',0);
+        $('#status-select-filter').prop('selectedIndex',0);
+        $('#role-select-filter').prop('selectedIndex',0);
+        table.draw();
+    })
+    
+    $('#redraw-table').on('click', function (){
+        table.draw();
+    })
+
+    $('#ResetformKegiatanPenilaianPetugas').on('click', function(e){
+        resetForm()
+    })
+</script>
+
+{% endblock tables-script-extend %}

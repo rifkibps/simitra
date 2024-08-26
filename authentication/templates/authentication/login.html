@@ -1,0 +1,106 @@
+{% load static %}
+{% load widget_tweaks %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>{{ title }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+        <meta content="Sistem Catatan dan Penilaian Mitra BPS Kabupaten Muna" name="Rifki Gustiawan" />
+        <!-- App favicon -->
+
+        <link rel="shortcut icon" href="{% static 'customs/img/bps.ico' %}">
+  
+        <!-- App css -->
+    
+        <link href="{% static 'app-design/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'app-design/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="light-style" />
+        <link href="{% static 'app-design/assets/css/app-dark.min.css' %}" rel="stylesheet" type="text/css" id="dark-style" />
+
+    </head>
+
+    <body class="authentication-bg pb-0" data-layout-config='{"darkMode":false}'>
+
+        <div class="auth-fluid" style="
+        background: url('{% static 'customs/img/bg-auth1.jpg' %}') right center !important; background-repeat : no-repeat !important;
+        ">
+            <!--Auth fluid left content -->
+            <div class="auth-fluid-form-box">
+                <div class="align-items-center d-flex h-100">
+                    <div class="card-body">
+                        <!-- Logo -->
+                
+                        <h4 class="mt-0">Selamat Datang Di Aplikasi</h4>
+                        <h3>
+                            <i>Sistem Catatan dan Penilaian Mitra BPS Kabupaten Muna</i>
+                        </h3>
+                        <!-- title-->
+                
+                        <h4 class="mt-4">Sign In</h4>
+                        <p class="text-muted mb-4">Enter username and password to access account.</p>
+
+                        <!-- form -->
+                        <form method="POST" action="{% url 'auth:login' %}">
+                                                                
+                            {% csrf_token %}
+
+                            {% if form.errors %}
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors  %}
+                                        <div class="alert alert-danger">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                                {% render_field form.username class="form-control" type="text" id="{{ form.username.id_for_label }}" required="required" placeholder="Enter your username" %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_password }}" class="form-label">Password</label>
+                                <div class="input-group input-group-merge">
+                                    {% render_field form.password class="form-control" id="password" placeholder="Enter your password" %}
+                                    <div class="input-group-text" data-password="false">
+                                        <span class="password-eye"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid mb-0 text-center">
+                                <button class="btn btn-primary" type="submit"><i class="mdi mdi-login"></i> Log In </button>
+                            </div>
+
+                        </form>
+                        <!-- end form-->
+
+                    </div> <!-- end .card-body -->
+                </div> <!-- end .align-items-center.d-flex.h-100-->
+            </div>
+            <!-- end auth-fluid-form-box-->
+
+            <!-- Auth fluid right content -->
+            <div class="auth-fluid-right text-center">
+                <div class="auth-user-testimonial">
+                    <h3 class="mb-3"><i class="mdi mdi-format-quote-open"></i> <i>Sistem Catatan dan Penilaian Mitra BPS Kabupaten Muna</i> <i class="mdi mdi-format-quote-close"></i></h3>
+  
+                    <p>
+                        - BPS Kabupaten Muna
+                    </p>
+                </div> <!-- end auth-user-testimonial-->
+            </div>
+            <!-- end Auth fluid right content -->
+        </div>
+        <!-- end auth-fluid-->
+
+        <!-- bundle -->
+        <script src="{% static 'app-design/assets/js/vendor.min.js' %}"></script>
+        <script src="{% static 'app-design/assets/js/app.min.js' %}"></script>
+
+    </body>
+
+</html>

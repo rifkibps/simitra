@@ -1,0 +1,375 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description">
+        <meta content="Coderthemes" name="author">
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="{% static 'app-design/assets/images/favicon.ico' %}">
+
+        <!-- third party css -->
+        <link href="{% static 'app-design/assets/css/vendor/jquery-jvectormap-1.2.2.css' %}" rel="stylesheet" type="text/css">
+        <!-- third party css end -->
+
+        {% block css-extender %}
+        {% endblock css-extender %}
+
+        <!-- App css -->
+        <link href="{% static 'app-design/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'app-design/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="light-style">
+        <link href="{% static 'app-design/assets/css/app-dark.min.css' %}" rel="stylesheet" type="text/css" id="dark-style">
+
+    </head>
+
+    <body class="loading" data-layout="detached" data-layout-config='{"layoutBoxed":false, "leftSidebarCondensed":{{request.user.profile.get_theme_condense_display}}, "leftSidebarScrollable":false,"darkMode":{{request.user.profile.get_theme_display}}, "showRightSidebarOnStart": true}'>
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom topnav-navbar topnav-navbar-light">
+            <div class="container-fluid">
+
+                <!-- LOGO -->
+                <a href="{% url 'dashboard:index' %}" class="topnav-logo">
+                    <span class="topnav-logo-lg">
+
+                    {% if request.user.profile.get_theme_display == 'false'%}
+                    <img src="{% static 'customs/img/bps_kab_muna_light.png' %}" alt="" height="32">
+                    {% else %}
+                    <img src="{% static 'customs/img/bps_kab_muna_dark.png' %}" alt="" height="32">
+                    {% endif %}
+                    
+                    </span>
+
+                    <span class="topnav-logo-sm">
+                        <img src="{% static 'customs/img/bps_kab_muna_light.png' %}" alt="" height="30">
+                    </span>
+                </a>
+
+                <ul class="list-unstyled topbar-menu float-end mb-0">
+
+                    <li class="dropdown notification-list">
+                        <a class="nav-link dropdown-toggle nav-user arrow-none me-0" data-bs-toggle="dropdown" id="topbar-userdrop" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                            <span class="account-user-avatar"> 
+                                <img src="{{ user.profile.image.url }}" alt="user-image" class="rounded-circle">
+                            </span>
+                            <span>
+                                <span class="account-user-name">{{request.user.get_full_name}}</span>
+                                <span class="account-position">{{request.user.groups.first.name}}</span>
+                            </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown" aria-labelledby="topbar-userdrop">
+                            <!-- item-->
+                            <div class=" dropdown-header noti-title">
+                                <h6 class="text-overflow m-0">Hai, {{request.user.get_full_name}} !</h6>
+                            </div>
+    
+                            <!-- item-->
+                            <a href="{% url 'auth:user-account' %}" class="dropdown-item notify-item">
+                                <i class="mdi mdi-account-circle me-1"></i>
+                                <span>Akun</span>
+                            </a>
+    
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item" id="dark-mode-display">
+                                <i class="mdi mdi-laptop me-1"></i>
+
+                                {% if request.user.profile.get_theme_display == 'false'%}
+                                <span>Dark Mode</span>
+                                {% else %}
+                                <span>Light Mode</span>
+                                {% endif %}
+                        
+                            </a>
+    
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item" id="condense-menu-display">
+                                <i class="mdi mdi-menu me-1"></i>
+
+                                {% if request.user.profile.get_theme_condense_display == 'false'%}
+                                <span>Condense Menu</span>
+                                {% else %}
+                                <span>Normal Menu</span>
+                                {% endif %}
+                        
+                            </a>
+
+                            <!-- item-->
+                            {% if user.is_staff  %}
+                                <a href="/admin" class="dropdown-item notify-item">
+                                    <i class="mdi mdi-account-edit me-1"></i>
+                                    <span>Administrator Page</span>
+                                </a>
+                            {% endif %}
+
+                            <!-- item-->
+                            <a href="{% url 'auth:logout' %}" class="dropdown-item notify-item">
+                                <i class="mdi mdi-logout me-1"></i>
+                                <span>Logout</span>
+                            </a>
+    
+                        </div>
+                    </li>
+
+                </ul>
+                <a class="button-menu-mobile disable-btn">
+                    <div class="lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </a>
+                <div class="app-search dropdown ml-5">
+                    <form>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Telusuri data mitra ..." id="top-search-mitra" autocomplete="off">
+                            <span class="mdi mdi-magnify search-icon"></span>
+                            <button class="input-group-text btn-primary" id="button-top-search">Search</button>
+                        </div>
+                    </form>
+                    <div class="dropdown-menu dropdown-menu-animated dropdown-lg" id="search-dropdown">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h5 class="text-overflow mb-2">Found <span class="text-danger" id="count-search"></span> results Mitra</h5>
+                        </div>
+    
+                        <!-- item-->
+                        <div id="search-content">
+
+                        </div>
+                        <br>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        <!-- end Topbar -->
+        
+        <!-- Start Content-->
+        <div class="container-fluid">
+
+            <!-- Begin page -->
+            <div class="wrapper">
+
+                <!-- ========== Left Sidebar Start ========== -->
+                <div class="leftside-menu leftside-menu-detached">
+
+                    <div class="leftbar-user">
+                        <a href="javascript: void(0);">
+                            <img src="{{ user.profile.image.url }}" alt="user-image" height="42" width="42" class="rounded-circle shadow-sm">
+                            <span class="leftbar-user-name">{{request.user.get_full_name}}</span>
+                            <span class="text-muted font-13">{{request.user.groups.first.name}}</span>
+                        </a>
+                    </div>
+
+                    <!--- Sidemenu -->
+                    <ul class="side-nav">
+
+                        <li class="side-nav-title side-nav-item">Navigation</li>
+
+                        <li class="side-nav-item">
+                            <a href="{% url 'dashboard:index' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-home"></i>
+                                <span> Dashboards </span>
+                            </a>
+                        </li>
+
+                        
+                        <li class="side-nav-title side-nav-item mt-2">Manajemen Mitra</li>
+                        
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_petugas:index' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-human-edit"></i>
+                                <span> Master Mitra </span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_petugas:role' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-sitemap"></i>
+                                <span> Role Mitra </span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_petugas:alokasi' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-human-capacity-increase"></i>
+                                <span> Alokasi Mitra </span>
+                            </a>
+                        </li>
+   
+                        <li class="side-nav-title side-nav-item  mt-2">Manajemen Survei</li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_survei:index' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-clipboard-account"></i>
+                                <span> Master Survey </span>
+                            </a>
+                        </li>
+
+                           
+                        <li class="side-nav-title side-nav-item  mt-2">Manajemen Penilaian</li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_penilaian:indikator-penilaian' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-clipboard-edit"></i>
+                                <span> Indikator Penilaian </span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_penilaian:index' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-clipboard-list"></i>
+                                <span> Kegiatan Penilaian </span>
+                            </a>
+                        </li>
+                        
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_penilaian:indikator-kegiatan' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-clipboard-text-multiple"></i>
+                                <span> Indikator Kegiatan </span>
+                            </a>
+                        </li>
+                                                
+                        <li class="side-nav-item">
+                            <a href="{% url 'master_penilaian:nilai-mitra' %}" aria-expanded="false"  class="side-nav-link">
+                                <i class="mdi mdi-pencil-box-multiple"></i>
+                                <span> Nilai Petugas </span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <!-- End Sidebar -->
+
+                    <div class="clearfix"></div>
+                    <!-- Sidebar -left -->
+
+                </div>
+                <!-- Left Sidebar End -->
+
+                <div class="content-page">
+                    <div class="content">
+                        
+                        {% block nav_content %}
+
+                        {% endblock nav_content %}
+
+                        <!-- end page title -->     
+                        
+                        {% block content %}
+                        
+                        {% endblock content %}
+                        
+
+                    </div> <!-- End Content -->
+
+                    <!-- Footer Start -->
+                    <footer class="footer">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col">
+                                    <script>document.write(new Date().getFullYear())</script> © Made with <span class="text-danger">&hearts;</span> by BPS Kabupaten Muna
+                                </div>
+                              
+                            </div>
+                        </div>
+                    </footer>
+                    <!-- end Footer -->
+
+                </div> 
+                <!-- content-page -->
+
+            </div> <!-- end wrapper-->
+        </div>
+        <!-- END Container -->
+
+        <!-- bundle -->
+
+
+
+        <script src="{% static 'app-design/assets/js/vendor.min.js' %}"></script>
+        <script src="{% static 'app-design/assets/js/app.min.js' %}"></script>
+
+        <!-- third party js -->
+        <script src="{% static 'app-design/assets/js/vendor/apexcharts.min.js' %}"></script>
+        <script src="{% static 'app-design/assets/js/vendor/jquery-jvectormap-1.2.2.min.js' %}"></script>
+        <script src="{% static 'app-design/assets/js/vendor/jquery-jvectormap-world-mill-en.js' %}"></script>
+        <!-- third party js ends -->
+
+        <!-- demo app -->
+        <script src="{% static 'app-design/assets/js/pages/demo.dashboard.js' %}"></script>
+        <!-- end demo js-->
+        
+        <script>
+         
+            function switchstyleTheme(data){
+                $.ajax({
+                    url: "{% url 'auth:user-profile' %}",
+                    type: "POST",   
+                    dataType: "json",
+                    data : data,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+                        return location.reload();
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+
+            $("#dark-mode-display").click(function (e) {
+                switchstyleTheme( {
+                    theme_dark : 'theme_dark',
+                })
+            })
+
+            $("#condense-menu-display").click(function (e) {
+                switchstyleTheme( {
+                    condense_menu : 'condense_menu',
+                })
+            })
+
+            $('#button-top-search').on('click', function (e){
+
+                var value = $('#top-search-mitra').val()
+
+                if (value == ''){
+                    return false
+                }
+
+                e.preventDefault()
+                $.ajax({
+                    url: "{% url 'master_petugas:mitra-search' %}",
+                    type: "POST",   
+                    dataType: "json",
+                    data : {
+                        search_by : $('#top-search-mitra').val()
+                    },
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": '{{csrf_token}}',
+                    },
+                    success: (data) => {
+                        $('#count-search').html(data.search_result.row_count)
+                        $('#search-content').html(data.search_result.search_result)
+                        $('#search-dropdown').show()
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+
+            })
+            $('#top-search-mitra').on('keyup', function (){
+                $('#search-dropdown').hide()
+            })
+        </script>
+
+        {% block js-extender %}
+        {% endblock js-extender %}
+
+    </body>
+</html>

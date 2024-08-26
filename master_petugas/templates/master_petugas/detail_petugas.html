@@ -1,0 +1,226 @@
+{% extends 'base/detached-layout/datables.html' %}
+{% load static %}
+
+{% block nav_content %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Manajemen Mitra</a></li>
+                    <li class="breadcrumb-item">Master Mitra</li>
+                    <li class="breadcrumb-item">{{mitra.nama_petugas}}</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{title}}</h4>
+        </div>
+    </div>  
+</div>     
+
+{% endblock nav_content %}
+
+
+{% block table-content %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <!-- Profile -->
+        <div class="card bg-primary">
+            <div class="card-body profile-user-box">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div>
+                                    <h4 class="mt-1 mb-1 text-white">{{mitra.nama_petugas}}</h4>
+                                    <p class="font-13 text-white-50"> Mitra {{mitra.get_status_display}} BPS Kabupaten Muna</p>
+
+                                    <ul class="mb-0 list-inline text-light">
+                                        <li class="list-inline-item me-3">
+                                            <h5 class="mb-1">{{survei_followed}}</h5>
+                                            <p class="mb-0 font-13 text-white-50">Jumlah Survei Diikuti</p>
+                                        </li>
+                                        <li class="list-inline-item">
+                                            <h5 class="mb-1">{{kegiatan_followed}}</h5>
+                                            <p class="mb-0 font-13 text-white-50">Jumlah Kegiatan Penilaian</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end col-->
+
+                    <div class="col-sm-4">
+                        <div class="text-center mt-sm-0 mt-3 text-sm-end">
+                            <button type="button" class="btn btn-light">
+                                <i class="mdi mdi-account-edit me-1"></i> Ranking Global #{{global_rank}}
+                            </button>
+                        </div>
+                    </div> <!-- end col-->
+                </div> <!-- end row -->
+
+            </div> <!-- end card-body/ profile-user-box-->
+        </div><!--end profile/ card -->
+
+    </div> <!-- end col-->
+</div>
+<!-- end row -->
+
+<div class="row">
+    <div class="col-xl-4">
+        <!-- Personal-Information -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mt-0 mb-3">Informasi Mitra</h4>
+                <p class="text-muted font-13">
+                    {{mitra.alamat}}
+                </p>
+
+                <hr>
+
+                <div class="text-start">
+                    <p class="text-muted"><strong>Nama Lengkap :</strong> <span class="ms-2">{{mitra.nama_petugas}}</span></p>
+
+                    <p class="text-muted"><strong>ID Petugas :</strong><span class="ms-2">{{mitra.kode_petugas}}</span></p>
+                    <p class="text-muted"><strong>NIK :</strong> <span class="ms-2">{{mitra.nik}}</span></p>
+                    <p class="text-muted"><strong>NPWP :</strong> <span class="ms-2">{{mitra.npwp}}</span></p>
+                    <p class="text-muted"><strong>Tanggal Lahir :</strong> <span class="ms-2">{{mitra.tgl_lahir}}</span></p>
+                    <p class="text-muted"><strong>Pendidikan :</strong> <span class="ms-2">{{mitra.get_pendidikan_display}}</span></p>
+                    <p class="text-muted"><strong>Pekerjaan :</strong> <span class="ms-2">{{mitra.pekerjaan}}</span></p>
+                    <p class="text-muted"><strong>Agama :</strong> <span class="ms-2">{{mitra.get_agama_display}}</span></p>
+                    <p class="text-muted"><strong>Email :</strong> <span class="ms-2">{{mitra.email}}</span></p>
+
+                </div>
+            </div>
+        </div>
+        <!-- Personal-Information -->
+
+        <!-- Toll free number box-->
+        <div class="card text-white bg-primary overflow-hidden">
+            <div class="card-body">
+                <div class="toll-free-box text-center">
+                    <h4> <i class="mdi mdi-deskphone"></i> No. WhatsApp: {{mitra.no_telp}}</h4>
+                </div>
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+        <!-- End Toll free number box-->
+
+    </div> <!-- end col-->
+
+    <div class="col-xl-8">
+
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3"><i class="mdi mdi-cards-variant me-1"></i>Tabel Penilaian Mitra</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-centered mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Penilaian</th>
+                                <th class="text-center">Jabatan</th>
+                                <th class="text-center">Rata-rata</th>
+                                <th class="text-center">Ranking</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for dt in penilaian %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{dt.nama_kegiatan}}</td>
+                                    <td class="text-center">{{dt.role}}</td>
+                                    <td class="text-center"><span class="badge bg-primary">{{dt.rerata}}</span></td>
+                                    <td class="text-center">{{dt.rank}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div> <!-- end table responsive-->
+            </div> <!-- end col-->
+        </div> <!-- end row-->
+
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3"><i class="mdi mdi-clipboard-text-multiple me-1"></i> Survei yang Diikuti</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-centered mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Survei</th>
+                                <th class="text-center">Jabatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for dt in history_survey %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{dt.survey.nama}}</td>
+                                    <td class="text-center"><span class="badge bg-primary">{{dt.role.jabatan}}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div> <!-- end table responsive-->
+            </div> <!-- end col-->
+        </div> <!-- end row-->
+
+    </div>
+    <!-- end col -->
+
+</div>
+<!-- end row -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3"><i class="mdi mdi-account-details me-1"></i>Rekam Jejak Mitra</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-centered mb-0 ">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Survei</th>
+                                <th>Jabatan</th>
+                                <th>Penilaian Kegiatan</th>
+                                <th>Catatan Personal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dt in penilaian %}        
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{dt.survey}}</td>
+                                <td>{{dt.role}}</td>
+                                <td>{{dt.nama_kegiatan}}</td>
+                                <td>
+                                    <ul>
+                                        {% for dt_ in dt.catatan  %}             
+                                        <li>
+                                            {{dt_}}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr> 
+                            {% endfor %}
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div> <!-- end table responsive-->
+            </div> <!-- end col-->
+        </div> <!-- end row-->
+    </div>
+</div>
+
+{% endblock table-content %}
+
+{% block tables-script-extend %}
+{% endblock tables-script-extend %}
